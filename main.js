@@ -1,21 +1,25 @@
 console.log("Starting Lullaby");
 
-//Discord module
+//Load Dependencies
 const Discord = require('discord.js');
+const private = require('./private.json');
+const config = require('./config.json');
+
+//Discord module
 const client = new Discord.Client();
 
-const PRIVATE_KEY;
-const GUILD;
-const CHANNEL;
+const PRIVATE_KEY = private.privateKey;
+const GUILD = private.guild;
+const CHANNEL = private.channel;
 
 //What time of day to run at (24 hour time)
-const hourToRun = 22;
-const minuteToRun = 0;
-const secondToRun = 0;
-const milliToRun = 0;
+const hourToRun = config.hourToRun;
+const minuteToRun = config.minuteToRun;
+const secondToRun = config.secondToRun;
+const milliToRun = config.milliToRun;
 
 //The message to be sent at the above time
-const messageToSend = "Good night Oxy";
+const messageToSend = config.message;
 
 //Login 
 client.login(PRIVATE_KEY).then(() => {
