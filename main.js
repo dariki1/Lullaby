@@ -36,7 +36,11 @@ client.login(PRIVATE_KEY).then(() => {
 });
 
 inputHandler.addCommand("eyebleach", function() {	
-	getFromReddit().then((url) => client.guilds.get(GUILD).channels.get(CHANNEL).send("",{files: [url]}));
+	getFromReddit("Eyebleach").then((url) => client.guilds.get(GUILD).channels.get(CHANNEL).send("",{files: [url]}));
+});
+
+inputHandler.addCommand("fox", function() {
+	getFromReddit("EverythingFoxes").then((url) => client.guilds.get(GUILD).channels.get(CHANNEL).send("",{files: [url]}));
 });
 
 client.on('message', message => {
