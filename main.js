@@ -23,6 +23,13 @@ const milliToRun = config.milliToRun;
 //The message to be sent at the above time
 const messageToSend = config.message;
 
+// Cache images for these boards.
+const redditBoards = [
+	{subreddit: "EverythingFoxes", level: "new", number: 100},
+	{subreddit: "Eyebleach", level: "new", number: 100}
+];
+const redditImageCache = new Map();
+
 //Login 
 client.login(PRIVATE_KEY).then(() => {
 	//Get the guild (server) from it's id (needs to be invited)
@@ -31,16 +38,25 @@ client.login(PRIVATE_KEY).then(() => {
 	//Self-calling function that runs on the time specified above
 	timeUp(guild);
 
+	// Setup reddit image auto-caching
+	cacheRedditImages(redditBoards);
+
 	//Inform user the bot is running
 	console.log("Bot startup complete");
 });
 
-inputHandler.addCommand("eyebleach", function() {	
-	getFromReddit("Eyebleach").then((url) => client.guilds.get(GUILD).channels.get(CHANNEL).send("",{files: [url]}));
+inputHandler.addCommand("eyebleach", async function(slicedContent, message) {
+	const url = await getFromRedditCache("Eyebleach");
+	if(url) {
+		message.channel.send(url);
+	}
 });
 
-inputHandler.addCommand("fox", function() {
-	getFromReddit("EverythingFoxes").then((url) => client.guilds.get(GUILD).channels.get(CHANNEL).send("",{files: [url]}));
+inputHandler.addCommand("fox", async function(slicedContent, message) {
+	const url = await getFromRedditCache("EverythingFoxes");
+	if(url) {
+		message.channel.send(url);
+	}
 });
 
 client.on('message', message => {
@@ -48,7 +64,7 @@ client.on('message', message => {
 		return;
 	}
 
-	inputHandler.runCommand(message.content);
+	inputHandler.runCommand(message);
 });
 
 function timeUp(guild) {
@@ -67,13 +83,46 @@ function timeUp(guild) {
 	}, ((runTime.getTime() - now.getTime()) + 3600000 * 24) % (3600000 * 24));
 }
 
+/**
+ * Cache images from the provided reddit boards.
+ * The image cache for each board is reloaded every 10 seconds to avoid needing
+ * to re-request it each message.
+ * @param {Array<Object>} boards The boards to cache images from
+ */
+async function cacheRedditImages(boards) {
+	console.log(`Caching ${boards.length} boards`);
+	const promises = boards.map(async ({subreddit, level, number}) => {
+		const data = await getFromReddit(subreddit, level, number);
+		redditImageCache.set(`${subreddit}/${level}`, data);
+	});
+	await Promise.all(promises);
+	console.log(`Caching done`);
+
+	// Re-get images every 5 minutes
+	setTimeout(() => cacheRedditImages(boards), 5 * 60 * 1000);
+}
+
+/**
+ * Get an image from the reddit image cache.
+ * If images are cached, then a request to reddit will be made for the latest images.
+ * @param {String} subreddit The subreddit to get images for
+ * @param {String} [level="new"] The subreddit level
+ */
+async function getFromRedditCache(subreddit, level="new") {
+	let data = redditImageCache.get(`${subreddit}/${level}`);
+	if(!data || data.length === 0) {
+		data = await getFromReddit(subreddit, level);
+	}
+	return data[Math.floor(data.length * Math.random())];
+}
+
 //Gets all images from the last 25 posts in a subreddit
 function getFromReddit(subreddit = "Eyebleach", level = "new", number = 25) {
 	return new Promise(function (resolve, reject) {
 		request("https://www.reddit.com/r/"+subreddit+"/"+level+".json?limit="+number, function (error, response, body) {
 			if (!error && response.statusCode === 200) {
 				let data = JSON.parse(body).data.children.filter((str) => str.data.url).filter((str) => str.data.url.endsWith('jpeg') || str.data.url.endsWith('jpg') || str.data.url.endsWith('png') || str.data.url.endsWith('gif')).map(dat => dat.data.url);
-				resolve(data[Math.floor(data.length*Math.random())]);				
+				resolve(data);	
 			} else {
 				reject();
 			}
