@@ -9,7 +9,8 @@ function addCommand(commandName, callback) {
 }
 
 exports.runCommand = runCommand;
-function runCommand(command) {
+function runCommand(message) {
+	let command = message.content;
 	if (!command.startsWith(prefix)) {
 		return;
 	}
@@ -21,6 +22,6 @@ function runCommand(command) {
 	let commandToRun = commandList.find((e) => e.name === command[0]);
 
 	if (commandToRun) {
-		commandToRun.effect(...command.slice(1));
+		commandToRun.effect(command.slice(1), message);
 	}
 }
