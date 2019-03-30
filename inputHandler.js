@@ -4,12 +4,24 @@ let commandList = [];
 let prefix = config.commandPrefix;
 
 exports.addCommand = addCommand;
-function addCommand(commandName, callback) {
-	commandList.push({name:commandName,effect:callback});
+/**
+ * Adds a function that can be run later with runCommand
+ * @param commandName The string that will be matched against user input
+ * @param callback The function that will be run if user input matches commandName
+ * @param caseSensitive Whether the command should be checked with case sensitivity
+ */
+function addCommand(commandName, callback, caseSensitive = false) {
+	commandList.push({name:commandName,effect:callback, caseSensitive:caseSensitive});
 }
 
 exports.runCommand = runCommand;
-function runCommand(message) {
+/**
+ * Attempts to run a function associated with a command
+ * Message must start with the prefix found in config.json
+ * Message must be registered as a command with addCommand
+ * @param {String} message The message to be looked for in the command list
+ */
+async function runCommand(message) {
 	let command = message.content;
 	if (!command.startsWith(prefix)) {
 		return;
@@ -19,7 +31,7 @@ function runCommand(message) {
 
 	command = command.substr(prefix.length).split(" ");
 
-	let commandToRun = commandList.find((e) => e.name === command[0]);
+	let commandToRun = commandList.find((e) => e.caseSensitive ? e.name === command[0] : e.name.toLowerCase() === command[0].toLowerCase());
 
 	if (commandToRun) {
 		commandToRun.effect(command.slice(1), message);

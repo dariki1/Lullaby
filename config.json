@@ -4,5 +4,6 @@
 	"minuteToRun":30,
 	"secondToRun":0,
 	"milliToRun":0,
-	"commandPrefix":"/"
+	"commandPrefix":"/",
+	"cacheSize":100
 }
