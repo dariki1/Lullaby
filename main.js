@@ -36,9 +36,9 @@ const redditImageCache = new Map();
 
 /**
  * Posts a message to a channel in a guild each day at a specified time
- * @param message The message to be sent
- * @param guild The guild to send to
- * @param channel The channel to send to
+ * @param {String} message The message to be sent
+ * @param {String} [guild=GUILD] The guild ID to send to
+ * @param {String} [channel=CHANNEL] The channel ID to send to
  */
 function dailyPost(message, guild = GUILD, channel = CHANNEL) {
 	// The time for the message to appear
@@ -91,9 +91,9 @@ async function getFromRedditCache(subreddit, level="new") {
 
 /**
  * Gets all JPEG, JPG, PNG and GIF format files from a number of posts in a subreddit
- * @param {String} subreddit The subreddit to check
- * @param {String} level The order to sort the posts by, options are hot, new, controversial, top and rising
- * @param {number} number The number of post to check in descending order
+ * @param {String} [subreddit="Eyebleach"] The subreddit to check
+ * @param {String} [level="new"] The order to sort the posts by, options are hot, new, controversial, top and rising
+ * @param {Number} [number=25] The number of post to check in descending order
  */
 function getFromReddit(subreddit = "Eyebleach", level = "new", number = 25) {
 	return new Promise(function (resolve, reject) {
@@ -119,9 +119,9 @@ function log(message) {
 
 /**
  * Sends a message to a specified channel in a specified guild
- * @param message The message being sent
- * @param guild The guild to send the message to
- * @param channel The channel to send the message to
+ * @param {String} message The message being sent
+ * @param {String} [guild=GUILD] The guild to send the message to
+ * @param {String} [channel=CHANNEL] The channel to send the message to
  */
 function sendMessage(message, guild = GUILD, channel = CHANNEL) {
 	client.guilds.get(guild).channels.get(channel).send(message);
