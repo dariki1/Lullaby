@@ -26,7 +26,8 @@ const messageToSend = config.message;
 // Cache images for these boards.
 const redditBoards = [
 	{subreddit: "EverythingFoxes", level: "new", number: 100},
-	{subreddit: "Eyebleach", level: "new", number: 100}
+	{subreddit: "Eyebleach", level: "new", number: 100},
+	{subreddit: "Pandas", level: "new", number: 100}
 ];
 const redditImageCache = new Map();
 
@@ -54,6 +55,13 @@ inputHandler.addCommand("eyebleach", async function(slicedContent, message) {
 
 inputHandler.addCommand("fox", async function(slicedContent, message) {
 	const url = await getFromRedditCache("EverythingFoxes");
+	if(url) {
+		message.channel.send(url);
+	}
+});
+
+inputHandler.addCommand("panda", async function(slicedContent, message) {
+	const url = await getFromRedditCache("Pandas");
 	if(url) {
 		message.channel.send(url);
 	}
