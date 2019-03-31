@@ -30,7 +30,8 @@ const cacheSize = config.cacheSize;
 // Cache images for these boards.
 const redditBoards = [
 	{subreddit: "EverythingFoxes", level: "new", number: cacheSize},
-	{subreddit: "Eyebleach", level: "new", number: cacheSize}
+	{subreddit: "Eyebleach", level: "new", number: cacheSize},
+	{subreddit: "Pandas", level: "new", number: cacheSize}
 ];
 const redditImageCache = new Map();
 
@@ -154,6 +155,13 @@ inputHandler.addCommand("eyebleach", async function() {
 // Posts an image from r/EverythingFoxes
 inputHandler.addCommand("fox", async function() {
 	const url = await getFromRedditCache("EverythingFoxes");
+	if(url) {
+		sendMessage(url);
+	}
+});
+
+inputHandler.addCommand("panda", async function() {
+	const url = await getFromRedditCache("Pandas");
 	if(url) {
 		sendMessage(url);
 	}
