@@ -233,7 +233,8 @@ inputHandler.addCommand("addSubreddit", async function(para, message) {
 	redditBoards.push(redditCommands[para[0]]);
 
 	// Modify the base postFromSubreddit command name to suit the new command
-	let commandJSON = commandsJSON.postFromSubreddit;
+	// Stringify then parse to make a shallow copy, so values aren't by reference
+	let commandJSON = JSON.parse(JSON.stringify(commandsJSON.postFromSubreddit));
 	commandJSON.command = para[1];
 
 	// Add a command handler to post an image from the sub specified
