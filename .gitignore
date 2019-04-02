@@ -6,7 +6,7 @@
 private.json
 
 # Mutable files
-subreddits.json
+JSON/subreddits.json
 
 # Logs
 logs

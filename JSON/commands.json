@@ -1,0 +1,23 @@
+{
+	"addSubreddit": {
+		"command": "addSubreddit",
+		"parameters": "<commandName> <subreddit> <sortBy(hot|new|controversial|top|rising)> <cacheSize>",
+		"needsAdmin": true,
+		"caseSensitive": false,
+		"help": "Creates a new command; <commandName>, that will post an image randomly from the last <cacheSize> posts in the <subreddit> subreddit, sorted by <sortBy>"
+	},
+	"help": {
+		"command": "help",
+		"parameters": "<commandName>",
+		"needsAdmin": false,
+		"caseSensitive": false,
+		"help": "When used by itself, it lists all commands, when given a <commandName>, it lists the help for <commandName>"
+	},
+	"postFromSubreddit": {
+		"command": "",
+		"parameters": "",
+		"needsAdmin": false,
+		"caseSensitive": false,
+		"help": "Posts images from a designated subreddit"
+	}
+}

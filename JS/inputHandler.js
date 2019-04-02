@@ -11,8 +11,16 @@ exports.addCommand = addCommand;
  * @callback callback The function that will be run if user input matches commandName
  * @param {Boolean} [caseSensitive=false] Whether the command should be checked with case sensitivity
  */
-function addCommand(commandName, callback, needsAdmin = false, caseSensitive = false) {
-	commandList.push({name:commandName,effect:callback, needsAdmin:needsAdmin, caseSensitive:caseSensitive});
+function addCommand(commandName, callback, commandJSON = {}) {
+	commandList.push({name:commandName,effect:callback, commandJSON:commandJSON});
+}
+
+exports.listCommands = listCommands
+/**
+ * Returns a shallow copy of all registed commands
+ */
+function listCommands() {
+	return commandList.slice();
 }
 
 exports.checkCommand = checkCommand
@@ -21,7 +29,7 @@ exports.checkCommand = checkCommand
  * @param {String} commandName The name of the command being checked
  */
 function checkCommand(commandName) {
-	return commandList.includes(commandName);
+	return commandList.filter(item => item.name === commandName)[0];
 }
 
 exports.runCommand = runCommand;
@@ -39,11 +47,11 @@ async function runCommand(message) {
 
 	command = command.substr(prefix.length).split(" ");
 
-	let commandToRun = commandList.find((e) => e.caseSensitive ? e.name === command[0] : e.name.toLowerCase() === command[0].toLowerCase());
+	let commandToRun = commandList.find((e) => e.commandJSON.caseSensitive ? e.name === command[0] : e.name.toLowerCase() === command[0].toLowerCase());
 
 	if (commandToRun) {
 		// Check user roles to make sure they have permission to run the command
-		if (commandToRun.needsAdmin && !message.member.roles.find(role => role.name === adminRole)) {
+		if (commandToRun.commandJSON.needsAdmin && !message.member.roles.find(role => role.name === adminRole)) {
 			message.reply("Sorry, you must have the '" + adminRole + "' role to use that command");
 			return;
 		}

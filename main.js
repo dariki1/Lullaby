@@ -31,6 +31,9 @@ const cacheSize = config.cacheSize;
 // Which role can run all commands
 const adminRole = config.adminRole;
 
+// Information about the commands
+const commandsJSON = require('./JSON/commands.json');
+
 //Load the commands to load from subreddits
 const redditCommands = readJSON('./JSON/subreddits.json');
 
@@ -113,7 +116,6 @@ function getFromReddit(subreddit = "Eyebleach", level = "new", number = 25) {
 		request("https://www.reddit.com/r/"+subreddit+"/"+level+".json?limit="+number, function (error, response, body) {
 			if (!error && response.statusCode === 200) {
 				let data = JSON.parse(body).data.children.filter((str) => str.data.url).filter((str) => str.data.url.endsWith('jpeg') || str.data.url.endsWith('jpg') || str.data.url.endsWith('png') || str.data.url.endsWith('gif')).map(dat => dat.data.url);
-				console.log("Resolve");
 				resolve(data);
 			} else {
 				reject("getFromReddit Failed");
@@ -145,18 +147,47 @@ function sendMessage(message, guild = GUILD, channel = CHANNEL) {
 for (let sub in redditCommands) {
 	redditBoards.push(redditCommands[sub]);
 
+	// Modify the base postFromSubreddit command name to suit the new command
+	// Stringify then parse to make a shallow copy, so values aren't by reference
+	let commandJSON = JSON.parse(JSON.stringify(commandsJSON.postFromSubreddit));
+	commandJSON.command = sub;
+	console.log(commandJSON.command);
+
 	// Add a command handler to post an image from the sub specified
 	inputHandler.addCommand(sub, async function() {
 		const url = await getFromRedditCache(redditCommands[sub].subreddit, redditCommands[sub].level);
 		if(url) {
 			sendMessage(url);
 		}
-	});
+	}, commandJSON);
 }
 
 // Register commands
 
-//command, sub, sortBy, cacheSize
+/**
+ * Shows the help information for the given command
+ */
+inputHandler.addCommand("help", function(para, message) {
+	//If no command is specified, list all registered commands
+	if (para.length === 0) {
+		let ret = "Here's a list of commands";
+		for (let command of inputHandler.listCommands()) {
+			ret += `\n${config.commandPrefix}${command.commandJSON.command}`;
+		}
+		message.reply(ret);
+	} else {
+		//If a command if specified, make sure it exists
+		let helpCommand = inputHandler.checkCommand(para[0]);
+		if (!helpCommand) {
+			message.reply("Sorry, that command doesn't exist. Did you use the right casing?");
+		} else {
+			//If it exists, format the information and reply with it
+			message.reply(`${config.commandPrefix}${helpCommand.commandJSON.command} ${helpCommand.commandJSON.parameters}\n\t${helpCommand.commandJSON.help}\n\tNeeds admin? ${helpCommand.commandJSON.needsAdmin}\n\tCase sensitive? ${helpCommand.commandJSON.caseSensitive}`);
+		}
+	}
+
+}, commandsJSON.help);
+
 /**
  * Allows a user to add a new subreddit to the subreddits.json, and run it as a command to grab images
  */
@@ -201,19 +232,23 @@ inputHandler.addCommand("addSubreddit", async function(para, message) {
 
 	redditBoards.push(redditCommands[para[0]]);
 
+	// Modify the base postFromSubreddit command name to suit the new command
+	let commandJSON = commandsJSON.postFromSubreddit;
+	commandJSON.command = para[1];
+
 	// Add a command handler to post an image from the sub specified
 	inputHandler.addCommand(para[1], async function() {
 		const url = await getFromRedditCache(redditCommands[para[1]].subreddit, redditCommands[para[1]].level);
 		if(url) {
 			sendMessage(url);
 		}
-	});
+	}, commandJSON);
 
 	// Update the subreddits.json
 	writeJSON('./JSON/subreddits.json', redditCommands);
 
 	message.reply(`Added the subreddit ${para[1]} under the command name /${para[0]}`);
-}, true);
+}, commandsJSON.addSubreddit);
 
 // Add a message listener that will attempt to run the message as a command if it is not from a bot, and is from the regestered channel
 client.on('message', message => {
