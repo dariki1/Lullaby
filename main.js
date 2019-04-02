@@ -161,12 +161,19 @@ for (let sub in redditCommands) {
  * Allows a user to add a new subreddit to the subreddits.json, and run it as a command to grab images
  */
 inputHandler.addCommand("addSubreddit", async function(para, message) {
+	// Make sure the command name is specified
+	if (!para[0]) {
+		message.reply("Please add a command name");
+		return;
+	}
+
 	// Make sure that command isn't set
 	if (inputHandler.checkCommand(para[0])) {
 		message.reply("Sorry, that command already exists");
 		return;
 	}
 
+	// Make sure the subreddit is specified
 	if (!para[1]) {
 		message.reply("Please add a subreddit");
 		return;
