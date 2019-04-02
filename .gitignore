@@ -5,6 +5,9 @@
 # Private Files
 private.json
 
+# Mutable files
+subreddits.json
+
 # Logs
 logs
 *.log
