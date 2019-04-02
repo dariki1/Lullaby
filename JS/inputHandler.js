@@ -1,4 +1,4 @@
-const config = require('./config.json');
+const config = require('./../JSON/config.json');
 
 let commandList = [];
 let prefix = config.commandPrefix;
@@ -26,8 +26,6 @@ async function runCommand(message) {
 	if (!command.startsWith(prefix)) {
 		return;
 	}
-
-	console.log("Running command; " + command);
 
 	command = command.substr(prefix.length).split(" ");
 

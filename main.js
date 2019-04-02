@@ -2,10 +2,11 @@ log('Starting Lullaby');
 
 // Load dependencies
 const Discord = require('discord.js');
-const private = require('./private.json');
-const config = require('./config.json');
-const inputHandler = require('./inputHandler.js');
+const private = require('./JSON/private.json');
+const config = require('./JSON/config.json');
+const inputHandler = require('./JS/inputHandler.js');
 const request = require('request');
+const fs = require('fs');
 
 // Discord module
 const client = new Discord.Client();
@@ -27,13 +28,21 @@ const messageToSend = config.message;
 // How many images should be cached from a subreddit
 const cacheSize = config.cacheSize;
 
+//Load the commands to load from subreddits
+const redditCommands = readJSON('./JSON/subreddits.json');
+
 // Cache images for these boards.
-const redditBoards = [
-	{subreddit: "EverythingFoxes", level: "new", number: cacheSize},
-	{subreddit: "Eyebleach", level: "new", number: cacheSize},
-	{subreddit: "Pandas", level: "new", number: cacheSize}
-];
+const redditBoards = [];
+
 const redditImageCache = new Map();
+
+function readJSON(path) {
+	return JSON.parse(fs.readFileSync(path));
+}
+
+function writeJSON(path, data) {
+	fs.writeFileSync(path, JSON.stringify(data));
+}
 
 /**
  * Posts a message to a channel in a guild each day at a specified time
@@ -128,6 +137,31 @@ function sendMessage(message, guild = GUILD, channel = CHANNEL) {
 	client.guilds.get(guild).channels.get(channel).send(message);
 }
 
+// Add subreddits from subreddits.json
+for (let sub in redditCommands) {
+	redditBoards.push(redditCommands[sub]);
+
+	// Add a command handler to post an image from the sub specified
+	inputHandler.addCommand(sub, async function() {
+		const url = await getFromRedditCache(redditCommands[sub].subreddit);
+		if(url) {
+			sendMessage(url);
+		}
+	});
+}
+
+// Register commands
+
+
+// Add a message listener that will attempt to run the message as a command if it is not from a bot, and is from the regestered channel
+client.on('message', message => {
+	if (!message.guild || message.channel.id !== CHANNEL || message.author.bot) {
+		return;
+	}
+
+	inputHandler.runCommand(message);
+});
+
 // Login
 client.login(PRIVATE_KEY).then(() => {
 	// Self-calling function that runs on the time specified in config.json
@@ -140,38 +174,4 @@ client.login(PRIVATE_KEY).then(() => {
 	log("Bot startup complete");
 	sendMessage("Good Morning! I am awake");
 
-});
-
-// Register commands
-
-// Posts an image from r/Eyebleach
-inputHandler.addCommand("eyebleach", async function() {
-	const url = await getFromRedditCache("Eyebleach");
-	if(url) {
-		sendMessage(url);
-	}
-});
-
-// Posts an image from r/EverythingFoxes
-inputHandler.addCommand("fox", async function() {
-	const url = await getFromRedditCache("EverythingFoxes");
-	if(url) {
-		sendMessage(url);
-	}
-});
-
-inputHandler.addCommand("panda", async function() {
-	const url = await getFromRedditCache("Pandas");
-	if(url) {
-		sendMessage(url);
-	}
-});
-
-// Add a message listener that will attempt to run the message as a command if it is not from a bot, and is from the regestered channel
-client.on('message', message => {
-	if (!message.guild || message.channel.id !== CHANNEL || message.author.bot) {
-		return;
-	}
-
-	inputHandler.runCommand(message);
 });
