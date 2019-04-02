@@ -20,7 +20,7 @@ exports.checkCommand = checkCommand
  * @param {String} commandName The name of the command being checked
  */
 function checkCommand(commandName) {
-	return commandList.contains(commandName);
+	return commandList.includes(commandName);
 }
 
 exports.runCommand = runCommand;
