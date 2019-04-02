@@ -5,5 +5,6 @@
 	"secondToRun":0,
 	"milliToRun":0,
 	"commandPrefix":"/",
-	"cacheSize":100
+	"cacheSize":100,
+	"adminRole": "Those Oft Present"
 }

@@ -28,6 +28,9 @@ const messageToSend = config.message;
 // How many images should be cached from a subreddit
 const cacheSize = config.cacheSize;
 
+// Which role can run all commands
+const adminRole = config.adminRole;
+
 //Load the commands to load from subreddits
 const redditCommands = readJSON('./JSON/subreddits.json');
 
@@ -113,7 +116,7 @@ function getFromReddit(subreddit = "Eyebleach", level = "new", number = 25) {
 				console.log("Resolve");
 				resolve(data);
 			} else {
-				reject("OOPS");
+				reject("getFromReddit Failed");
 			}
 		})
 	})
@@ -156,7 +159,6 @@ for (let sub in redditCommands) {
 //command, sub, sortBy, cacheSize
 /**
  * Allows a user to add a new subreddit to the subreddits.json, and run it as a command to grab images
- * @todo Add user authentication, so only certain roles may run this command
  */
 inputHandler.addCommand("addSubreddit", async function(para, message) {
 	// Make sure that command isn't set
@@ -198,8 +200,8 @@ inputHandler.addCommand("addSubreddit", async function(para, message) {
 	// Update the subreddits.json
 	writeJSON('./JSON/subreddits.json', redditCommands);
 
-	message.reply(`Added the subreddit ${para[1]} under the command name ${para[0]}`);
-});
+	message.reply(`Added the subreddit ${para[1]} under the command name /${para[0]}`);
+}, true);
 
 // Add a message listener that will attempt to run the message as a command if it is not from a bot, and is from the regestered channel
 client.on('message', message => {
@@ -223,6 +225,3 @@ client.login(PRIVATE_KEY).then(() => {
 	sendMessage("Good Morning! I am awake");
 
 });
-
-
-//addSubreddit abc sidfghipdnbvpnbv

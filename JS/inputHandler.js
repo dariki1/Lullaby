@@ -2,6 +2,7 @@ const config = require('./../JSON/config.json');
 
 let commandList = [];
 let prefix = config.commandPrefix;
+let adminRole = config.adminRole;
 
 exports.addCommand = addCommand;
 /**
@@ -10,8 +11,8 @@ exports.addCommand = addCommand;
  * @callback callback The function that will be run if user input matches commandName
  * @param {Boolean} [caseSensitive=false] Whether the command should be checked with case sensitivity
  */
-function addCommand(commandName, callback, caseSensitive = false) {
-	commandList.push({name:commandName,effect:callback, caseSensitive:caseSensitive});
+function addCommand(commandName, callback, needsAdmin = false, caseSensitive = false) {
+	commandList.push({name:commandName,effect:callback, needsAdmin:needsAdmin, caseSensitive:caseSensitive});
 }
 
 exports.checkCommand = checkCommand
@@ -41,6 +42,11 @@ async function runCommand(message) {
 	let commandToRun = commandList.find((e) => e.caseSensitive ? e.name === command[0] : e.name.toLowerCase() === command[0].toLowerCase());
 
 	if (commandToRun) {
+		// Check user roles to make sure they have permission to run the command
+		if (commandToRun.needsAdmin && !message.member.roles.find(role => role.name === adminRole)) {
+			message.reply("Sorry, you must have the '" + adminRole + "' role to use that command");
+			return;
+		}
 		commandToRun.effect(command.slice(1), message);
 	}
 }
