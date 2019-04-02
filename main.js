@@ -167,6 +167,11 @@ inputHandler.addCommand("addSubreddit", async function(para, message) {
 		return;
 	}
 
+	if (!para[1]) {
+		message.reply("Please add a subreddit");
+		return;
+	}
+
 	// The object to hold the new subreddit data
 	let newCommand = {};
 	newCommand["subreddit"] = para[1];
