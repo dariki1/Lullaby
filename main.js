@@ -237,7 +237,7 @@ inputHandler.addCommand("addSubreddit", async function(para, message) {
 	commandJSON.command = para[1];
 
 	// Add a command handler to post an image from the sub specified
-	inputHandler.addCommand(para[1], async function() {
+	inputHandler.addCommand(para[0], async function() {
 		const url = await getFromRedditCache(redditCommands[para[1]].subreddit, redditCommands[para[1]].level);
 		if(url) {
 			sendMessage(url);
