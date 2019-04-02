@@ -152,6 +152,33 @@ for (let sub in redditCommands) {
 
 // Register commands
 
+//command, sub, sortBy, cacheSize
+/**
+ * Allows a user to add a new subreddit to the subreddits.json, and run it as a command to grab images
+ * @todo Add user authentication, so only certain roles may run this command
+ * @todo Add validation to ensure the parameters are usable and the subreddit exists
+ */
+inputHandler.addCommand("addSubreddit", function(para, message) {
+	let newCommand = {};
+	newCommand["subreddit"] = para[1];
+	newCommand["level"] = para[2] !== undefined ? para[2] : "new";
+	newCommand["cacheSize"] = para[3] !== undefined ? para[3] : cacheSize;
+	redditCommands[para[0]] = newCommand;
+
+	redditBoards.push(redditCommands[para[0]]);
+
+	// Add a command handler to post an image from the sub specified
+	inputHandler.addCommand(para[1], async function() {
+		const url = await getFromRedditCache(redditCommands[para[1]].subreddit);
+		if(url) {
+			sendMessage(url);
+		}
+	});
+
+	writeJSON('./JSON/subreddits.json', redditCommands);
+
+	message.reply(`Added the subreddit ${para[1]} under the command name ${para[0]}`);
+});
 
 // Add a message listener that will attempt to run the message as a command if it is not from a bot, and is from the regestered channel
 client.on('message', message => {
