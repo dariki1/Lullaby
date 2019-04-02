@@ -110,9 +110,10 @@ function getFromReddit(subreddit = "Eyebleach", level = "new", number = 25) {
 		request("https://www.reddit.com/r/"+subreddit+"/"+level+".json?limit="+number, function (error, response, body) {
 			if (!error && response.statusCode === 200) {
 				let data = JSON.parse(body).data.children.filter((str) => str.data.url).filter((str) => str.data.url.endsWith('jpeg') || str.data.url.endsWith('jpg') || str.data.url.endsWith('png') || str.data.url.endsWith('gif')).map(dat => dat.data.url);
-				resolve(data);	
+				console.log("Resolve");
+				resolve(data);
 			} else {
-				reject();
+				reject("OOPS");
 			}
 		})
 	})
@@ -143,7 +144,7 @@ for (let sub in redditCommands) {
 
 	// Add a command handler to post an image from the sub specified
 	inputHandler.addCommand(sub, async function() {
-		const url = await getFromRedditCache(redditCommands[sub].subreddit);
+		const url = await getFromRedditCache(redditCommands[sub].subreddit, redditCommands[sub].level);
 		if(url) {
 			sendMessage(url);
 		}
@@ -156,25 +157,45 @@ for (let sub in redditCommands) {
 /**
  * Allows a user to add a new subreddit to the subreddits.json, and run it as a command to grab images
  * @todo Add user authentication, so only certain roles may run this command
- * @todo Add validation to ensure the parameters are usable and the subreddit exists
  */
-inputHandler.addCommand("addSubreddit", function(para, message) {
+inputHandler.addCommand("addSubreddit", async function(para, message) {
+	// Make sure that command isn't set
+	if (inputHandler.checkCommand(para[0])) {
+		message.reply("Sorry, that command already exists");
+		return;
+	}
+
+	// The object to hold the new subreddit data
 	let newCommand = {};
 	newCommand["subreddit"] = para[1];
-	newCommand["level"] = para[2] !== undefined ? para[2] : "new";
-	newCommand["cacheSize"] = para[3] !== undefined ? para[3] : cacheSize;
+	newCommand["level"] = ['hot', 'new', 'controversial', 'top', 'rising'].includes(para[2]) ? para[2] : "new";
+	newCommand["cacheSize"] = Number.isInteger(parseInt(para[3])) ? parseInt(para[3]) : cacheSize;
+
+	// Attempt to get images from the subreddit
+	let data = await getFromReddit(newCommand["subreddit"], newCommand["level"], newCommand["cacheSize"]);
+
+	// If no images could be found, inform the user
+	if (data.length === 0) {
+		message.reply("Sorry, that subreddit doesn't exist or has no images in a valid format");
+		return;
+	}
+
+	// If images could be found, put them in the cache and add the new command to reddit command list
+	redditImageCache.set(`${newCommand["subreddit"]}/${newCommand["level"]}`, data);
+
 	redditCommands[para[0]] = newCommand;
 
 	redditBoards.push(redditCommands[para[0]]);
 
 	// Add a command handler to post an image from the sub specified
 	inputHandler.addCommand(para[1], async function() {
-		const url = await getFromRedditCache(redditCommands[para[1]].subreddit);
+		const url = await getFromRedditCache(redditCommands[para[1]].subreddit, redditCommands[para[1]].level);
 		if(url) {
 			sendMessage(url);
 		}
 	});
 
+	// Update the subreddits.json
 	writeJSON('./JSON/subreddits.json', redditCommands);
 
 	message.reply(`Added the subreddit ${para[1]} under the command name ${para[0]}`);
@@ -202,3 +223,6 @@ client.login(PRIVATE_KEY).then(() => {
 	sendMessage("Good Morning! I am awake");
 
 });
+
+
+//addSubreddit abc sidfghipdnbvpnbv

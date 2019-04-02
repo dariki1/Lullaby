@@ -14,6 +14,15 @@ function addCommand(commandName, callback, caseSensitive = false) {
 	commandList.push({name:commandName,effect:callback, caseSensitive:caseSensitive});
 }
 
+exports.checkCommand = checkCommand
+/**
+ * Returns if the entered command exists yet
+ * @param {String} commandName The name of the command being checked
+ */
+function checkCommand(commandName) {
+	return commandList.contains(commandName);
+}
+
 exports.runCommand = runCommand;
 /**
  * Attempts to run a function associated with a command
