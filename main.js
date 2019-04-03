@@ -80,8 +80,8 @@ function dailyPost(message, guild = GUILD, channel = CHANNEL) {
  */
 async function cacheRedditImages(boards) {
 	log(`Caching ${boards.length} boards`);
-	const promises = boards.map(async ({subreddit, level, number}) => {
-		const data = await getFromReddit(subreddit, level, number);
+	const promises = boards.map(async ({subreddit, level, cacheSize}) => {
+		const data = await getFromReddit(subreddit, level, cacheSize);
 		redditImageCache.set(`${subreddit}/${level}`, data);
 	});
 	await Promise.all(promises);
@@ -97,10 +97,10 @@ async function cacheRedditImages(boards) {
  * @param {String} subreddit The subreddit to get images for
  * @param {String} [level="new"] The subreddit level
  */
-async function getFromRedditCache(subreddit, level="new") {
+async function getFromRedditCache(subreddit, level="new", cacheSize) {
 	let data = redditImageCache.get(`${subreddit}/${level}`);
 	if(!data || data.length === 0) {
-		data = await getFromReddit(subreddit, level);
+		data = await getFromReddit(subreddit, level, cacheSize);
 	}
 	return data[Math.floor(data.length * Math.random())];
 }
@@ -151,11 +151,10 @@ for (let sub in redditCommands) {
 	// Stringify then parse to make a shallow copy, so values aren't by reference
 	let commandJSON = JSON.parse(JSON.stringify(commandsJSON.postFromSubreddit));
 	commandJSON.command = sub;
-	console.log(commandJSON.command);
 
 	// Add a command handler to post an image from the sub specified
 	inputHandler.addCommand(sub, async function() {
-		const url = await getFromRedditCache(redditCommands[sub].subreddit, redditCommands[sub].level);
+		const url = await getFromRedditCache(redditCommands[sub].subreddit, redditCommands[sub].level, redditCommands[sub].cacheSize);
 		if(url) {
 			sendMessage(url);
 		}
@@ -239,7 +238,7 @@ inputHandler.addCommand("addSubreddit", async function(para, message) {
 
 	// Add a command handler to post an image from the sub specified
 	inputHandler.addCommand(para[0], async function() {
-		const url = await getFromRedditCache(redditCommands[para[0]].subreddit, redditCommands[para[0]].level);
+		const url = await getFromRedditCache(redditCommands[para[0]].subreddit, redditCommands[para[0]].level, redditCommands[para[0]].cacheSize);
 		if(url) {
 			sendMessage(url);
 		}
