@@ -1,5 +1,6 @@
 const config = require('./../JSON/config.json');
 const private = require('./../JSON/private.json');
+const { sendMessage } = require('./utility.js');
 
 const GUILD = private.guild;
 const CHANNEL = private.channel;
@@ -28,7 +29,7 @@ function dailyPost(message, guild = GUILD, channel = CHANNEL) {
 	// At the specified time, send the message and call this function again
 	setTimeout(() => {
 		sendMessage(message, guild, channel);
-		dailyPost(guild);
+		dailyPost(message, guild, channel);
 		// Subtract the current time from the run time, add a day to avoid negatives, modulo a day so it runs every day, not once
 	}, ((runTime.getTime() - now.getTime()) + 3600000 * 24) % (3600000 * 24));
 }
