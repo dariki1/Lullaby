@@ -70,12 +70,22 @@ for (let board in redditBoards) {
 }
 
 // Add a message listener that will attempt to run the message as a command if it is not from a bot, and is from the regestered channel
-client.on('message', message => {
+client.on('message', message => {	
 	if (!message.guild || message.channel.id !== CHANNEL || message.author.bot) {
 		return;
-	}
+	}	
 
 	inputHandler.runCommand(message);
+
+	let lowerContent = message.content.toLowerCase();
+
+	if (lowerContent.includes("bad bot")) {
+		message.reply("bad human");
+	} else if (lowerContent.includes("good bot")) {
+		message.reply("good human");
+	} else if (lowerContent.includes("looks at bot")) {
+		sendMessage("Looks at human");
+	}
 });
 
 // Login
