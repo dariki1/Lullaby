@@ -29,7 +29,7 @@ exports.checkCommand = checkCommand
  * @param {String} commandName The name of the command being checked
  */
 function checkCommand(commandName) {
-	return commandList.filter(item => item.name === commandName)[0];
+	return commandList.filter(item => item.name.toLowerCase() === commandName.toLowerCase())[0];
 }
 
 exports.runCommand = runCommand;

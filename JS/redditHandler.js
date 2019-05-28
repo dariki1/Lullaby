@@ -9,30 +9,37 @@ exports.cacheRedditImages = cacheRedditImages;
  * Cache images from the provided reddit boards.
  * @param {Array<Object>} boards The boards to cache images from
  */
-async function cacheRedditImages(boards) {
+async function cacheRedditImages(boards = redditImageCache) {
 	log(`Caching ${Object.keys(boards).length} boards`);
-	let hadFailure = false;
+	let hadSuccess = false;
 	// Go through each given board
 	let dataSets = [];
+	let promises = [];
 	for (let key in boards) {
 		const subData = boards[key];
 		// Download the data for the current board from reddit
-		const data = await getFromReddit(subData.subreddit, subData.level, subData.cacheSize);
-		// If there is no data, don't store it
-		if (!data) {
-			hadFailure = true;
-			continue;
-		}
-		// Put the data into the cache
-		redditImageCache.set(`${subData.subreddit}/${subData.level}`, data);
+		promises.push(getFromReddit(subData.subreddit, subData.level, subData.cacheSize))
+		promises[promises.length-1].then((data) => {
+			log("Succeeded loading subreddit; " + subData.subreddit);
+			hadSuccess = true;
+			// Put the data into the cache
+			redditImageCache.set(`${subData.subreddit}/${subData.level}`, data);
+		}).catch((error) => {
+			log('Failed to load subreddit; ' + subData.subreddit, 1);
+		});
 	}
+	await Promise.all(promises).then(() => {
+		log("Reddit cache load succeeded");
+	}).catch((error) => {
+		log("Reddit cache load failed with; " + error);
+	});
 	log(`Caching done`);
-	return hadFailure;
+	return hadSuccess;
 }
 
 exports.getFromRedditCache = getFromRedditCache;
 /**
- * Get an image from the reddit image cache.
+ * Get a random image from the reddit image cache.
  * If images are cached, then a request to reddit will be made for the latest images.
  * @param {Object} board The subreddit to get images for
  */
@@ -61,6 +68,9 @@ function getFromReddit(subreddit, level, number) {
 			if (!error && response.statusCode === 200) {
 				// Pull only the URLs in the posts that end in jpeg, jpg, png or gif
 				let data = JSON.parse(body).data.children.filter((str) => str.data.url).filter((str) => str.data.url.endsWith('jpeg') || str.data.url.endsWith('jpg') || str.data.url.endsWith('png') || str.data.url.endsWith('gif')).map(dat => dat.data.url);
+				if (!data || data.length == 0) {
+					reject("No data found");
+				}
 				// Return the data
 				resolve(data);
 			} else {

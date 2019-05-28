@@ -4,6 +4,11 @@ const private = require('./../JSON/private.json');
 let client;
 const GUILD = private.guild;
 const CHANNEL = private.channel;
+const logLevels = [
+	"",
+	"Warn",
+	"ERROR"
+];
 
 exports.initialiseUtility = initialise;
 function initialise(discordClient) {
@@ -15,14 +20,9 @@ exports.log = log;
  * Outputs a message with the time in front of it
  * @param {String} message The message to be outputted
  */
-function log(message) {
+function log(message, level = 0) {
 	var time = new Date().toTimeString().replace(/.*(\d{2}:\d{2}:\d{2}).*/, "$1");
-	console.log("[" + time + "]: " + message);
-}
-
-exports.readJSON = readJSON;
-function readJSON(path) {
-	return JSON.parse(fs.readFileSync(path));
+	console.log("[" + time + "] "+logLevels[level]+": " + message);
 }
 
 exports.writeJSON = writeJSON;
