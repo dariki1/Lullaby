@@ -9,7 +9,8 @@ const inputHandler = require('./JS/inputHandler.js');
 const redditHandler = require('./JS/redditHandler.js');
 const { log, writeJSON, sendMessage, initialiseUtility } = require('./JS/utility.js');
 const redditBoards = require('./JSON/subreddits.json');
-const { dailyPost } = require('./JS/dailyPost');
+const { dailyPost } = require('./JS/dailyPost.js');
+const compliment = require('./JS/compliment.js');
 
 // Discord module
 const client = new Discord.Client();
@@ -101,6 +102,9 @@ client.login(PRIVATE_KEY).then(async () => {
 	await redditHandler.cacheRedditImages(redditBoards);
 	// Update the cache every 5 minutes
 	setInterval(() => redditHandler.cacheRedditImages(), 1000 * 60 * 5);
+
+	// Initialises compliment function
+	compliment.init(client.guilds.get(GUILD));
 
 	// Inform user the bot is running
 	log("Bot startup complete");
