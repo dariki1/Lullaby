@@ -2,7 +2,6 @@ const inputHandler = require('./../inputHandler.js');
 const { readJSON, writeJSON, sendMessage } = require('./../utility.js');
 const { cacheSize } = require('./../../JSON/config.json');
 const redditHandler = require('./../redditHandler.js');
-const fs = require('fs');
 
 exports.info = {
 	"command": "addSubreddit",
