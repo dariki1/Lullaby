@@ -78,7 +78,7 @@ function init(guild) {
 				member = dat.members.get(keyArray[ Math.floor( Math.random()*keyArray.length ) ] );
 				if (!member.user.bot && member.presence.status == "online") {
 					// Send a compliment to a non-bot online member
-					sendMessage("<@" + member.user.id + ">, " + compliment());
+					sendMessage(member.user.username + ", " + compliment());
 					break;
 				}
 			}
