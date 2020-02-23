@@ -1,4 +1,12 @@
-const { sendMessage } = require('./utility.js');
+const { sendMessage } = require('../utility.js');
+
+exports.info = {
+	"command": "compliment",
+	"parameters": "<name>",
+	"needsAdmin": false,
+	"caseSensitive": false,
+	"help": "Compliments <name>"
+}
 
 // Compliment modifiers
 let modifiers = [
@@ -26,10 +34,15 @@ let nouns = [
 	"non-robot"
 ];
 
+exports.command = compliment;
 /**
  * Generates and returns a random compliment string
  */
-function compliment() {
+function compliment(para, message) {
+	if (para[0] === undefined) {
+		message.reply("Please specify a person to compliment");
+	}
+
 	let start = "";
 	let modifier = "";
 	let object = "";
@@ -57,32 +70,5 @@ function compliment() {
 			obejct = "";
 			break;
 	}
-	return `${start} ${modifier} ${object}`;
-}
-
-exports.init = init;
-/**
- * Compliments a random non-bot online member in the guild
- * @param {Guild} guild The guild to send a compliment to
- */
-function init(guild) {
-	// Choose an amount of time from 1 to 60 minutes
-	setTimeout(() => {
-		// Get all members of guild
-		guild.fetchMembers().then((dat) => {
-			let keyArray = Array.from(dat.members.keys());
-			let member;
-			// Attempt to find a non-bot online member at random up to 20 times and send them a compliment
-			for (let i = 0; i < 20; i++) {
-				// Get a random member
-				member = dat.members.get(keyArray[ Math.floor( Math.random()*keyArray.length ) ] );
-				if (!member.user.bot && member.presence.status == "online") {
-					// Send a compliment to a non-bot online member
-					sendMessage(member.user.username + ", " + compliment());
-					break;
-				}
-			}
-		});
-		init(guild);
-	}, 1000*60*(Math.random()*59+1));
+	sendMessage(`${para[0] === "me" ? message.author.username : para[0]}, ${start} ${modifier} ${object}`);
 }
