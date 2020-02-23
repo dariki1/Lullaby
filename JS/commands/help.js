@@ -17,13 +17,16 @@ function help(para, message) {
 	if (para.length === 0) {
 		let ret = "here's a list of commands";
 		for (let command of inputHandler.listCommands()) {
+			if (command.commandJSON.hidden) {
+				continue;
+			}
 			ret += `\n${config.commandPrefix}${command.commandJSON.command}`;
 		}
 		message.reply(ret);
 	} else {
 		//If a command if specified, make sure it exists
 		let helpCommand = inputHandler.checkCommand(para[0]);
-		if (!helpCommand) {
+		if (!helpCommand || helpCommand.commandJSON.hidden) {
 			message.reply("sorry, that command doesn't exist. Did you use the right casing?");
 		} else {
 			//If it exists, format the information and reply with it
