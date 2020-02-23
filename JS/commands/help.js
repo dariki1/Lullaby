@@ -7,6 +7,7 @@ exports.info = {
 	"parameters": "<commandName>",
 	"needsAdmin": false,
 	"caseSensitive": false,
+	"runsFromDM": true,
 	"help": "When used by itself, it lists all commands, when given a <commandName>, it lists the help for <commandName>"
 }
 

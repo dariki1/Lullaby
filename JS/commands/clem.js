@@ -5,6 +5,7 @@ exports.info = {
 	"parameters": "",
 	"needsAdmin": false,
 	"caseSensitive": false,
+	"runsFromDM": false,
 	"help": "Clem."
 }
 

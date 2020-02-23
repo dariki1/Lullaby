@@ -73,9 +73,11 @@ for (let board in redditBoards) {
 
 // Add a message listener that will attempt to run the message as a command if it is not from a bot, and is from the regestered channel
 client.on('message', message => {
-	if (!message.guild || message.channel.id !== CHANNEL || message.author.bot) {
+	if (message.channel.type === 'dm' && !message.author.bot) {		
+		log(`DM message recieved from: ${message.author.username}\n\tMessage: ${message.content}`)
+	} else if (!message.guild || message.channel.id !== CHANNEL || message.author.bot) {
 		return;
-	}	
+	}
 
 	inputHandler.runCommand(message);
 

@@ -8,6 +8,7 @@ exports.info = {
 	"parameters": "<commandName> <subreddit> [sortBy(hot|new|controversial|top|rising)] [cacheSize]",
 	"needsAdmin": true,
 	"caseSensitive": false,
+	"runsFromDM": false,
 	"help": "Creates a new command; <commandName>, that will post an image randomly from the last <cacheSize> posts in the <subreddit> subreddit, sorted by <sortBy>"
 }
 

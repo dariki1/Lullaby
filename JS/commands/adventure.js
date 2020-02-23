@@ -3,6 +3,7 @@ exports.info = {
 	"parameters": "",
 	"needsAdmin": false,
 	"caseSensitive": false,
+	"runsFromDM": false,
 	"help": "A text based adventure game"
 }
 

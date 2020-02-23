@@ -5,6 +5,7 @@ exports.info = {
 	"parameters": "<name>",
 	"needsAdmin": false,
 	"caseSensitive": false,
+	"runsFromDM": true,
 	"help": "Compliments <name>"
 }
 
@@ -70,5 +71,6 @@ function compliment(para, message) {
 			obejct = "";
 			break;
 	}
+	
 	sendMessage(`${para[0] === "me" ? message.author.username : para[0]}, ${start} ${modifier} ${object}`);
 }
